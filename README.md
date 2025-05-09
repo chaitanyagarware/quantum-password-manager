@@ -134,8 +134,8 @@ Note: If you don’t have a LICENSE file, you can create one by adding a file na
 A secure password manager using quantum-safe encryption.
 
 ## Screenshots
-![Login Screen](screenshots/Screenshot1.png)
-![Dashboard](screenshots/Screenshot2.png)
+![Login Screen](Screenshot1.png)
+![Dashboard](Screenshot2.png)
 
-![Dashboard](screenshots/Screenshot3.png)
+![Dashboard](Screenshot3.png)
 
