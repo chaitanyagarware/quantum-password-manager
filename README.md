@@ -129,6 +129,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Note: If you don’t have a LICENSE file, you can create one by adding a file named LICENSE with the MIT License text or choose another license.
 
 
+# Quantum-Safe Password Manager
+
+A secure password manager using quantum-safe encryption.
+
 ## Screenshots
-![Login Screen](screenshots/screenshot1.png)
-![Dashboard](screenshots/screenshot2.png)
+![Login Screen](screenshots/Screenshot1.png)
+![Dashboard](screenshots/Screenshot2.png)
+
+![Dashboard](screenshots/Screenshot3.png)
+
