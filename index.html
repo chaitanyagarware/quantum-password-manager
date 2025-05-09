@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum-Safe Password Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="auth" class="container">
+        <h1 class="main-headline">Welcome to Quantum-Safe Password Manager</h1>
+        <div id="register">
+            <h2>Register</h2>
+            <input id="regUsername" type="text" placeholder="Username">
+            <input id="regPassword" type="password" placeholder="Password">
+            <button onclick="register()">Register</button>
+        </div>
+        <div id="login">
+            <h2>Login</h2>
+            <input id="loginUsername" type="text" placeholder="Username">
+            <input id="loginPassword" type="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <div id="app" class="container hidden">
+        <div class="dashboard-header">
+            <h1 class="main-headline">Welcome, <span id="username-display"></span>!</h1>
+            <p class="tagline">Securely manage your passwords with quantum-safe encryption.</p>
+            <div class="profile">
+                <div class="profile-icon" onclick="toggleDropdown()">
+                    <span id="profile-letter"></span>
+                </div>
+                <div id="profile-dropdown" class="profile-dropdown hidden">
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+        <div class="dashboard-content">
+            <div class="split-container">
+                <div class="password-grid-section">
+                    <div class="card-container">
+                        <h2>Your Passwords</h2>
+                        <div id="passwordGrid" class="password-grid"></div>
+                    </div>
+                </div>
+                <div class="add-password-section">
+                    <div class="card-container">
+                        <h2>Add Password</h2>
+                        <div class="form">
+                            <input id="website" type="text" placeholder="Website">
+                            <input id="username" type="text" placeholder="Username">
+                            <input id="password" type="text" placeholder="Password">
+                            <input id="masterPassword" type="password" placeholder="Master Password">
+                            <button onclick="addPassword()">Add Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Enter Master Password</h2>
+            <input id="modalMasterPassword" type="password" placeholder="Master Password">
+            <div class="modal-buttons">
+                <button onclick="revealPassword()">Reveal</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
