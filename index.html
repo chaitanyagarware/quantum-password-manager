@@ -4,73 +4,1039 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum-Safe Password Manager</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --surface2: #1a1a25;
+            --border: #2a2a3a;
+            --accent: #7c5cfc;
+            --accent2: #00d4aa;
+            --accent3: #ff6b6b;
+            --text: #e8e8f0;
+            --text-dim: #8888a8;
+            --text-muted: #4a4a6a;
+            --card-bg: #14141e;
+            --success: #00d4aa;
+            --danger: #ff6b6b;
+            --mono: 'Space Mono', monospace;
+            --sans: 'DM Sans', sans-serif;
+        }
+ 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+ 
+        /* Grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(124,92,252,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,92,252,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+ 
+        /* Glows */
+        .glow-1 {
+            position: fixed;
+            top: -200px; left: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+        .glow-2 {
+            position: fixed;
+            bottom: -200px; right: -200px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
+ 
+        /* ===== AUTH SCREEN ===== */
+        #auth {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+ 
+        .auth-logo {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .auth-logo::before {
+            content: '';
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent);
+        }
+ 
+        .auth-headline {
+            font-family: var(--mono);
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        .auth-headline span {
+            color: var(--accent);
+        }
+ 
+        .auth-sub {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            font-family: var(--mono);
+        }
+ 
+        .auth-cards {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 780px;
+        }
+ 
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            flex: 1;
+            min-width: 300px;
+            max-width: 360px;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+ 
+        .auth-card h2 {
+            font-family: var(--mono);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+ 
+        .badge {
+            display: inline-block;
+            background: rgba(124,92,252,0.15);
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(124,92,252,0.3);
+            margin-bottom: 1.5rem;
+        }
+ 
+        /* ===== INPUTS ===== */
+        .field {
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+ 
+        .field label {
+            display: block;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+ 
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+        }
+        input::placeholder { color: var(--text-muted); }
+ 
+        /* ===== BUTTONS ===== */
+        .btn {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0);
+            transition: background 0.15s;
+        }
+        .btn:hover::after { background: rgba(255,255,255,0.08); }
+        .btn:active { transform: scale(0.98); }
+ 
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-danger {
+            background: rgba(255,107,107,0.15);
+            border: 1px solid rgba(255,107,107,0.3);
+            color: var(--danger);
+        }
+        .btn-sm {
+            width: auto;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+ 
+        /* ===== APP SCREEN ===== */
+        #app {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+ 
+        .topbar {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10,10,15,0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+ 
+        .topbar-logo {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .topbar-logo .dot {
+            width: 6px; height: 6px;
+            background: var(--accent2);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+ 
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-chip {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.3rem 1rem 0.3rem 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        .avatar {
+            width: 24px; height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+        }
+ 
+        .app-body {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+ 
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title::before {
+            content: '//';
+            color: var(--accent);
+        }
+ 
+        .count-badge {
+            background: rgba(124,92,252,0.15);
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(124,92,252,0.25);
+        }
+ 
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 2rem;
+            align-items: start;
+        }
+ 
+        /* ===== PASSWORD GRID ===== */
+        .password-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+ 
+        .password-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            position: relative;
+            transition: border-color 0.2s, transform 0.2s;
+            cursor: pointer;
+        }
+        .password-card:hover {
+            border-color: rgba(124,92,252,0.4);
+            transform: translateY(-2px);
+        }
+        .password-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .password-card:hover::after { opacity: 1; }
+ 
+        .card-site-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--accent), rgba(124,92,252,0.4));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 0.8rem;
+        }
+ 
+        .card-website {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+        .card-username {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.8rem;
+        }
+        .card-password-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface2);
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            gap: 0.5rem;
+        }
+        .card-password-text {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .card-password-text.revealed {
+            color: var(--accent2);
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.6rem;
+        }
+ 
+        .btn-icon {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.3rem 0.6rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            flex: 1;
+        }
+        .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-icon.danger:hover { border-color: var(--danger); color: var(--danger); }
+ 
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+            font-family: var(--mono);
+            font-size: 0.85rem;
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+ 
+        /* ===== ADD FORM PANEL ===== */
+        .add-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: sticky;
+            top: 80px;
+        }
+        .add-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+            border-radius: 16px 16px 0 0;
+        }
+ 
+        .add-panel h3 {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1.2rem;
+        }
+ 
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+ 
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        .modal-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 16px 16px 0 0;
+        }
+ 
+        .modal-box h3 {
+            font-family: var(--mono);
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .modal-box p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+ 
+        .modal-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        .modal-actions .btn {
+            flex: 1;
+        }
+ 
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .toast {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            animation: slideIn 0.2s ease;
+            max-width: 320px;
+        }
+        .toast.success { border-left: 3px solid var(--accent2); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.info { border-left: 3px solid var(--accent); }
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+ 
+        /* ===== LOADING ===== */
+        .spinner {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+ 
+        .hidden { display: none !important; }
+ 
+        /* ===== STRENGTH METER ===== */
+        .strength-bar {
+            display: flex;
+            gap: 3px;
+            margin-top: 0.4rem;
+        }
+        .strength-seg {
+            height: 3px;
+            flex: 1;
+            background: var(--surface2);
+            border-radius: 2px;
+            transition: background 0.2s;
+        }
+ 
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+            .add-panel { position: static; }
+        }
+        @media (max-width: 600px) {
+            .topbar { padding: 1rem; }
+            .app-body { padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
-    <div id="auth" class="container">
-        <h1 class="main-headline">Welcome to Quantum-Safe Password Manager</h1>
-        <div id="register">
-            <h2>Register</h2>
-            <input id="regUsername" type="text" placeholder="Username">
-            <input id="regPassword" type="password" placeholder="Password">
-            <button onclick="register()">Register</button>
-        </div>
-        <div id="login">
-            <h2>Login</h2>
-            <input id="loginUsername" type="text" placeholder="Username">
-            <input id="loginPassword" type="password" placeholder="Password">
-            <button onclick="login()">Login</button>
-        </div>
-    </div>
-
-    <div id="app" class="container hidden">
-        <div class="dashboard-header">
-            <h1 class="main-headline">Welcome, <span id="username-display"></span>!</h1>
-            <p class="tagline">Securely manage your passwords with quantum-safe encryption.</p>
-            <div class="profile">
-                <div class="profile-icon" onclick="toggleDropdown()">
-                    <span id="profile-letter"></span>
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+ 
+    <!-- AUTH SCREEN -->
+    <div id="auth">
+        <div class="auth-logo">QSPM v2.0</div>
+        <h1 class="auth-headline">Quantum-Safe<br><span>Password Manager</span></h1>
+        <p class="auth-sub">// AES-GCM + PBKDF2 · Zero backend · Client-side only</p>
+ 
+        <div class="auth-cards">
+            <div class="auth-card">
+                <div class="badge">NEW ACCOUNT</div>
+                <h2>Register</h2>
+                <div class="field">
+                    <label>Username</label>
+                    <input id="regUsername" type="text" placeholder="your_username" autocomplete="off">
                 </div>
-                <div id="profile-dropdown" class="profile-dropdown hidden">
-                    <button onclick="logout()">Logout</button>
+                <div class="field">
+                    <label>Password</label>
+                    <input id="regPassword" type="password" placeholder="••••••••">
                 </div>
+                <button class="btn btn-primary" onclick="register()">Create Account</button>
+            </div>
+ 
+            <div class="auth-card">
+                <div class="badge">EXISTING USER</div>
+                <h2>Login</h2>
+                <div class="field">
+                    <label>Username</label>
+                    <input id="loginUsername" type="text" placeholder="your_username" autocomplete="off">
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input id="loginPassword" type="password" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" onclick="login()">Sign In</button>
             </div>
         </div>
-        <div class="dashboard-content">
-            <div class="split-container">
-                <div class="password-grid-section">
-                    <div class="card-container">
-                        <h2>Your Passwords</h2>
-                        <div id="passwordGrid" class="password-grid"></div>
-                    </div>
+    </div>
+ 
+    <!-- APP SCREEN -->
+    <div id="app" class="hidden">
+        <div class="topbar">
+            <div class="topbar-logo">
+                <div class="dot"></div>
+                QSPM
+            </div>
+            <div class="topbar-user">
+                <div class="user-chip">
+                    <div class="avatar" id="avatarLetter">?</div>
+                    <span id="usernameDisplay">user</span>
                 </div>
-                <div class="add-password-section">
-                    <div class="card-container">
-                        <h2>Add Password</h2>
-                        <div class="form">
-                            <input id="website" type="text" placeholder="Website">
-                            <input id="username" type="text" placeholder="Username">
-                            <input id="password" type="text" placeholder="Password">
-                            <input id="masterPassword" type="password" placeholder="Master Password">
-                            <button onclick="addPassword()">Add Password</button>
+                <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+            </div>
+        </div>
+ 
+        <div class="app-body">
+            <div class="split-layout">
+                <!-- Left: Password list -->
+                <div>
+                    <div class="section-header">
+                        <div class="section-title">Vault</div>
+                        <span class="count-badge" id="countBadge">0 entries</span>
+                    </div>
+                    <div class="password-grid" id="passwordGrid">
+                        <div class="empty-state">
+                            <div class="empty-icon">🔐</div>
+                            No passwords yet. Add one →
                         </div>
                     </div>
                 </div>
+ 
+                <!-- Right: Add form -->
+                <div class="add-panel">
+                    <h3>// Add Entry</h3>
+                    <div class="field">
+                        <label>Website / Service</label>
+                        <input id="website" type="text" placeholder="github.com">
+                    </div>
+                    <div class="field">
+                        <label>Username / Email</label>
+                        <input id="entryUsername" type="text" placeholder="user@example.com">
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <input id="entryPassword" type="text" placeholder="your password" oninput="updateStrength(this.value)">
+                        <div class="strength-bar">
+                            <div class="strength-seg" id="s1"></div>
+                            <div class="strength-seg" id="s2"></div>
+                            <div class="strength-seg" id="s3"></div>
+                            <div class="strength-seg" id="s4"></div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Master Password <span style="color:var(--accent);font-size:0.65rem">(used to encrypt)</span></label>
+                        <input id="masterPassword" type="password" placeholder="your master password">
+                    </div>
+                    <button class="btn btn-primary" onclick="addPassword()">Encrypt &amp; Save</button>
+                </div>
             </div>
         </div>
     </div>
-
-    <div id="modal" class="modal hidden">
-        <div class="modal-content">
-            <h2>Enter Master Password</h2>
-            <input id="modalMasterPassword" type="password" placeholder="Master Password">
-            <div class="modal-buttons">
-                <button onclick="revealPassword()">Reveal</button>
-                <button onclick="closeModal()">Cancel</button>
+ 
+    <!-- REVEAL MODAL -->
+    <div id="revealModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>Reveal Password</h3>
+            <p id="modalSite">Enter your master password to decrypt.</p>
+            <div class="field">
+                <label>Master Password</label>
+                <input id="modalMaster" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')revealPassword()">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="revealPassword()">Decrypt</button>
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
             </div>
         </div>
     </div>
-
-    <script src="script.js"></script>
+ 
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+ 
+    <script>
+    // ===== CRYPTO ENGINE (Web Crypto API — AES-GCM + PBKDF2) =====
+    const Crypto = {
+        async deriveKey(password, salt) {
+            const enc = new TextEncoder();
+            const keyMaterial = await window.crypto.subtle.importKey(
+                'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+            );
+            return window.crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt: enc.encode(salt), iterations: 200000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false, ['encrypt', 'decrypt']
+            );
+        },
+ 
+        async encrypt(plaintext, password, salt) {
+            const key = await this.deriveKey(password, salt);
+            const iv = window.crypto.getRandomValues(new Uint8Array(12));
+            const enc = new TextEncoder();
+            const ciphertext = await window.crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv }, key, enc.encode(plaintext)
+            );
+            // Pack: iv (12 bytes) + ciphertext, encode as base64
+            const combined = new Uint8Array(12 + ciphertext.byteLength);
+            combined.set(iv, 0);
+            combined.set(new Uint8Array(ciphertext), 12);
+            return btoa(String.fromCharCode(...combined));
+        },
+ 
+        async decrypt(cipherB64, password, salt) {
+            try {
+                const key = await this.deriveKey(password, salt);
+                const combined = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+                const iv = combined.slice(0, 12);
+                const ciphertext = combined.slice(12);
+                const dec = new TextDecoder();
+                const plaintext = await window.crypto.subtle.decrypt(
+                    { name: 'AES-GCM', iv }, key, ciphertext
+                );
+                return dec.decode(plaintext);
+            } catch {
+                return null;
+            }
+        },
+ 
+        async hashPassword(password) {
+            const enc = new TextEncoder();
+            const salt = 'qspm-auth-salt-v2';
+            const keyMaterial = await window.crypto.subtle.importKey(
+                'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+            );
+            const key = await window.crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt: enc.encode(salt), iterations: 200000, hash: 'SHA-256' },
+                keyMaterial, { name: 'AES-GCM', length: 256 }, true, ['encrypt']
+            );
+            const exported = await window.crypto.subtle.exportKey('raw', key);
+            return btoa(String.fromCharCode(...new Uint8Array(exported)));
+        }
+    };
+ 
+    // ===== STATE =====
+    let currentUser = null;
+    let passwords = [];
+    let selectedId = null;
+ 
+    // ===== STORAGE =====
+    const DB = {
+        getUsers: () => JSON.parse(localStorage.getItem('qspm_users') || '{}'),
+        saveUsers: (u) => localStorage.setItem('qspm_users', JSON.stringify(u)),
+        getPasswords: (username) => JSON.parse(localStorage.getItem(`qspm_pw_${username}`) || '[]'),
+        savePasswords: (username, pws) => localStorage.setItem(`qspm_pw_${username}`, JSON.stringify(pws))
+    };
+ 
+    // ===== AUTH =====
+    async function register() {
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+        if (!username || !password) return toast('Fill in all fields', 'error');
+ 
+        const users = DB.getUsers();
+        if (users[username]) return toast('Username already taken', 'error');
+ 
+        const hash = await Crypto.hashPassword(password);
+        users[username] = { hash };
+        DB.saveUsers(users);
+        toast('Account created! Sign in.', 'success');
+        document.getElementById('regUsername').value = '';
+        document.getElementById('regPassword').value = '';
+    }
+ 
+    async function login() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        if (!username || !password) return toast('Fill in all fields', 'error');
+ 
+        const users = DB.getUsers();
+        if (!users[username]) return toast('User not found', 'error');
+ 
+        const hash = await Crypto.hashPassword(password);
+        if (hash !== users[username].hash) return toast('Wrong password', 'error');
+ 
+        currentUser = username;
+        passwords = DB.getPasswords(username);
+        document.getElementById('auth').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('usernameDisplay').textContent = username;
+        document.getElementById('avatarLetter').textContent = username[0].toUpperCase();
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        renderPasswords();
+    }
+ 
+    function logout() {
+        currentUser = null;
+        passwords = [];
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('auth').classList.remove('hidden');
+    }
+ 
+    // ===== PASSWORDS =====
+    async function addPassword() {
+        const website = document.getElementById('website').value.trim();
+        const username = document.getElementById('entryUsername').value.trim();
+        const password = document.getElementById('entryPassword').value;
+        const master = document.getElementById('masterPassword').value;
+        if (!website || !username || !password || !master) return toast('Fill in all fields', 'error');
+ 
+        const btn = document.querySelector('.add-panel .btn-primary');
+        btn.innerHTML = '<span class="spinner"></span>Encrypting...';
+        btn.disabled = true;
+ 
+        try {
+            const salt = currentUser + '_' + website;
+            const encrypted = await Crypto.encrypt(password, master, salt);
+            const entry = { id: Date.now(), website, username, encrypted };
+            passwords.push(entry);
+            DB.savePasswords(currentUser, passwords);
+            renderPasswords();
+            document.getElementById('website').value = '';
+            document.getElementById('entryUsername').value = '';
+            document.getElementById('entryPassword').value = '';
+            document.getElementById('masterPassword').value = '';
+            updateStrength('');
+            toast('Password encrypted & saved', 'success');
+        } catch(e) {
+            toast('Encryption failed', 'error');
+        } finally {
+            btn.innerHTML = 'Encrypt &amp; Save';
+            btn.disabled = false;
+        }
+    }
+ 
+    function deletePassword(id) {
+        passwords = passwords.filter(p => p.id !== id);
+        DB.savePasswords(currentUser, passwords);
+        renderPasswords();
+        toast('Entry deleted', 'info');
+    }
+ 
+    function openRevealModal(id) {
+        selectedId = id;
+        const entry = passwords.find(p => p.id === id);
+        document.getElementById('modalSite').textContent = `Decrypting: ${entry.website}`;
+        document.getElementById('modalMaster').value = '';
+        document.getElementById('revealModal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('modalMaster').focus(), 50);
+    }
+ 
+    function closeModal() {
+        document.getElementById('revealModal').classList.add('hidden');
+        selectedId = null;
+    }
+ 
+    async function revealPassword() {
+        const master = document.getElementById('modalMaster').value;
+        if (!master) return toast('Enter master password', 'error');
+ 
+        const entry = passwords.find(p => p.id === selectedId);
+        const salt = currentUser + '_' + entry.website;
+        const plaintext = await Crypto.decrypt(entry.encrypted, master, salt);
+ 
+        if (plaintext === null) {
+            toast('Wrong master password', 'error');
+            return;
+        }
+ 
+        closeModal();
+        // Update card display
+        const card = document.querySelector(`[data-id="${selectedId}"]`);
+        if (card) {
+            const pwText = card.querySelector('.card-password-text');
+            pwText.textContent = plaintext;
+            pwText.classList.add('revealed');
+            const revealBtn = card.querySelector('.reveal-btn');
+            if (revealBtn) revealBtn.textContent = 'Hide';
+ 
+            // Copy to clipboard
+            try {
+                await navigator.clipboard.writeText(plaintext);
+                toast('Decrypted & copied to clipboard', 'success');
+            } catch {
+                toast('Decrypted: ' + plaintext, 'success');
+            }
+ 
+            // Auto-hide after 10s
+            setTimeout(() => {
+                pwText.textContent = '••••••••••••';
+                pwText.classList.remove('revealed');
+                if (revealBtn) revealBtn.textContent = 'Reveal';
+            }, 10000);
+        }
+    }
+ 
+    // ===== RENDER =====
+    function renderPasswords() {
+        const grid = document.getElementById('passwordGrid');
+        const count = document.getElementById('countBadge');
+        count.textContent = `${passwords.length} entr${passwords.length === 1 ? 'y' : 'ies'}`;
+ 
+        if (passwords.length === 0) {
+            grid.innerHTML = `<div class="empty-state">
+                <div class="empty-icon">🔐</div>
+                No passwords yet. Add one →
+            </div>`;
+            return;
+        }
+ 
+        grid.innerHTML = passwords.map((entry, i) => `
+            <div class="password-card" data-id="${entry.id}">
+                <div class="card-site-icon">${entry.website[0].toUpperCase()}</div>
+                <div class="card-website">${escHtml(entry.website)}</div>
+                <div class="card-username">${escHtml(entry.username)}</div>
+                <div class="card-password-row">
+                    <span class="card-password-text">••••••••••••</span>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-icon reveal-btn" onclick="openRevealModal(${entry.id})">Reveal</button>
+                    <button class="btn-icon" onclick="copyEncrypted(${entry.id})">Copy enc.</button>
+                    <button class="btn-icon danger" onclick="deletePassword(${entry.id})">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+ 
+    async function copyEncrypted(id) {
+        const entry = passwords.find(p => p.id === id);
+        try {
+            await navigator.clipboard.writeText(entry.encrypted);
+            toast('Encrypted value copied', 'info');
+        } catch {
+            toast('Copy failed', 'error');
+        }
+    }
+ 
+    // ===== UTILS =====
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+ 
+    function updateStrength(pw) {
+        const segs = [1,2,3,4].map(i => document.getElementById('s'+i));
+        const colors = { 0: '#2a2a3a', 1: '#ff6b6b', 2: '#ffd93d', 3: '#6bcb77', 4: '#00d4aa' };
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+        segs.forEach((s, i) => {
+            s.style.background = i < score ? colors[score] : colors[0];
+        });
+    }
+ 
+    function toast(msg, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
+ 
+    // Close modal on overlay click
+    document.getElementById('revealModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    </script>
 </body>
 </html>
