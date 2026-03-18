@@ -1,141 +1,85 @@
-# Quantum-Safe Password Manager
-
-A secure password manager using quantum-safe encryption.
-
 Quantum-Safe Password Manager
-A secure password manager application that leverages quantum-safe encryption to protect your passwords. Built with a modern UI, this app allows users to register, log in, store, and manage passwords securely.
-Features
-
-Quantum-Safe Encryption: Uses simulated Kyber post-quantum cryptography for encrypting passwords.
-User Authentication: Register and log in securely with username and password.
-Password Management:
-Add new passwords with website, username, and password details.
-View encrypted passwords in a grid layout.
-Reveal decrypted passwords using a master password.
-Delete passwords securely.
-
-
-Responsive UI: Split layout with a password grid on the left and an "Add Password" form on the right, optimized for both desktop and mobile.
-User-Friendly Design:
-Welcome message with tagline: "Welcome, ! Securely manage your passwords with quantum-safe encryption."
-Profile dropdown with logout functionality.
-Modal for entering master password to reveal decrypted passwords.
-
-
+A client-side password manager using real AES-GCM encryption with PBKDF2 key derivation — no backend, no server, no database. Runs entirely in the browser and deploys directly to GitHub Pages.
+🔗 Live Demo: chaitanyagarware.github.io/quantum-password-manager
 
 Screenshots
-Below are some screenshots of the application:
-Login screen for user authentication.
-Dashboard showing the password grid and add password form.
-Note: Replace screenshot1.png and screenshot2.png with the actual filenames of your screenshots if different.
-Prerequisites
+Show Image
+Show Image
+Show Image
 
-Node.js: Ensure you have Node.js installed (download from nodejs.org).
-SQLite: The app uses SQLite for the database (no additional installation required as it’s bundled with Node.js).
-Git: For version control and uploading to GitHub (download from git-scm.com).
+Features
 
-Setup Instructions
-
-Clone the Repository:
-git clone https://github.com/chaitanyagarware/quantum-password-manager.git
-cd quantum-password-manager
-
-
-Install Dependencies:Install the required Node.js packages:
-npm install
+AES-GCM 256-bit Encryption — Every password is encrypted using the Web Crypto API with AES-GCM, a standard symmetric cipher used in TLS and modern secure systems.
+PBKDF2 Key Derivation — Master passwords are never stored. Instead, they're run through PBKDF2 (200,000 iterations, SHA-256) to derive an encryption key, making brute-force attacks computationally expensive.
+Zero Backend — No server, no database, no API calls. All data lives in the browser via localStorage.
+Per-Entry Encryption — Each password entry is independently encrypted with its own random IV (initialization vector), so identical passwords produce different ciphertexts.
+Client-Side Auth — User registration and login use PBKDF2-hashed credentials stored locally.
+Password Strength Meter — Real-time visual feedback while entering passwords.
+Auto-Hide on Reveal — Decrypted passwords are hidden again after 10 seconds.
+Clipboard Copy — Decrypted password is automatically copied to clipboard on reveal.
+Fully Responsive — Works on desktop and mobile.
 
 
-Set Up the Database:Run the SQL script to create the database and tables:
+Encryption Architecture
+Master Password
+      │
+      ▼
+ PBKDF2 (200k iterations, SHA-256)
+      │
+      ▼
+ AES-GCM 256-bit Key
+      │
+      ▼
+ Encrypt(plaintext password + random IV)
+      │
+      ▼
+ Base64-encoded ciphertext → stored in localStorage
+The encryption key is derived fresh each time from the master password — it is never stored anywhere. Without the correct master password, the ciphertext cannot be decrypted.
 
-The setup.sql file is already included in the repository.
-SQLite will automatically create the database file (passwords.db) when the app runs.
+Tech Stack
+LayerTechnologyEncryptionWeb Crypto API (AES-GCM, PBKDF2)FrontendHTML, CSS, Vanilla JavaScriptStorageBrowser localStorageHostingGitHub Pages
+No npm. No build step. No dependencies.
 
+Getting Started
+Since this is a fully static app, there's nothing to install or run locally.
+Run locally:
+Just open index.html in any modern browser. That's it.
+Deploy to GitHub Pages:
 
-Run the Application:Start the backend server:
-node server.js
-
-
-The server will run at http://localhost:3000.
-
-
-Access the App:
-
-Open your browser and navigate to http://localhost:3000.
-Register a new user or log in with existing credentials.
-
+Fork or clone this repo
+Go to repo Settings → Pages
+Set source to main branch, / (root)
+Hit Save — live in ~60 seconds at https://<your-username>.github.io/quantum-password-manager
 
 
 Usage
+Register
+Enter a username and password on the login screen. Your credentials are hashed with PBKDF2 and stored locally — nothing is transmitted anywhere.
+Add a Password
+Fill in the website, username, password, and your master password. Click "Encrypt & Save". The entry is encrypted with AES-GCM before being stored.
+Reveal a Password
+Click "Reveal" on any password card, enter your master password, and the plaintext is decrypted client-side. It auto-copies to your clipboard and hides itself after 10 seconds.
+Delete a Password
+Click "Delete" on any card to permanently remove it from the vault.
 
-Register:
+Important Notes
 
-On the login screen, enter a username and password to register.
-After successful registration, log in with the same credentials.
+This is a portfolio/demonstration project. Passwords are stored in localStorage, which is scoped to the browser and device. Clearing browser data will delete your vault. Do not use this as your primary password manager for sensitive accounts.
 
-
-Add a Password:
-
-On the dashboard, use the "Add Password" form on the right.
-Enter the website, username, password, and master password.
-Click "Add Password" to save it securely.
-
-
-View Passwords:
-
-The password grid on the left displays your saved passwords.
-Each card shows the website, username, and encrypted password.
-
-
-Reveal a Password:
-
-Click on a password card to reveal the decrypted password.
-Enter your master password in the modal and click "Reveal".
-
-
-Delete a Password:
-
-Click the "✕" button on a password card to delete it.
-
-
+The project demonstrates practical application of post-quantum-safe cryptographic primitives (AES-GCM is quantum-resistant for symmetric encryption) and client-side security design — no trusted third party ever handles your data.
 
 Project Structure
-
-server.js: Backend server using Express.js and SQLite.
-setup.sql: SQL script to set up the database and tables.
-public/: Frontend files.
-index.html: Main HTML file for the UI.
-styles.css: CSS styles for the app.
-script.js: JavaScript for frontend functionality.
-
-
-
-Technologies Used
-
-Backend: Node.js, Express.js, SQLite.
-Frontend: HTML, CSS, JavaScript.
-Encryption: Simulated Kyber post-quantum cryptography (base64 encoding for demonstration).
-
-Troubleshooting
-
-Server Not Running: Ensure Node.js is installed and run node server.js in the project directory.
-Styles Not Loading: Clear browser cache (DevTools > Network > Disable cache, refresh) or verify styles.css is in the public folder.
-Database Issues: Delete passwords.db and restart the server to recreate the database.
-Console Errors: Check the browser console (Inspect > Console) for errors and share them if needed.
+quantum-password-manager/
+├── index.html        # Entire application (self-contained)
+├── Screenshot1.png
+├── Screenshot2.png
+├── Screenshot3.png
+└── README.md
 
 Contributing
-Feel free to fork this repository, make improvements, and submit pull requests. For major changes, please open an issue to discuss your ideas.
+Feel free to fork, improve, and open a pull request. For major changes, open an issue first to discuss the idea.
+
 License
-This project is licensed under the MIT License - see the LICENSE file for details.
-Note: If you don’t have a LICENSE file, you can create one by adding a file named LICENSE with the MIT License text or choose another license.
+MIT License — see LICENSE for details.
 
-
-# Quantum-Safe Password Manager
-
-A secure password manager using quantum-safe encryption.
-
-## Screenshots
-![Login Screen](Screenshot1.png)
-![Dashboard](Screenshot2.png)
-
-![Dashboard](Screenshot3.png)
-
+Built by Chaitanya Garware · MS Cybersecurity, UAB
