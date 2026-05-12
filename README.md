@@ -5,6 +5,8 @@ A fully client-side, zero-backend password manager secured with **real AES-GCM 2
 **[Live Demo →](https://chaitanyagarware.github.io/quantum-password-manager)**
 
 ![Screenshot](Screenshot1.png)
+![Screenshot](Screenshot2.png)
+
 
 ---
 
